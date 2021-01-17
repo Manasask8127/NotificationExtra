@@ -10,6 +10,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,7 +20,7 @@ import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
-    Button Simple,Download_progress,FullScreen,Expanded;
+    Button Simple,Download_progress,FullScreen,Expanded,Regular,Special;
 
     public static final String CHANNEL_ID="Simple_Channel";
     NotificationManager notificationManager;
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
         Download_progress=findViewById(R.id.download);
         FullScreen=findViewById(R.id.fullScreen);
         Expanded=findViewById(R.id.Expanded);
+        Regular=findViewById(R.id.regular_activity);
+        Special=findViewById(R.id.special_activity);
 
         Simple.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,6 +176,55 @@ public class MainActivity extends AppCompatActivity {
 
            }
        });
+
+       Regular.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               // Create an Intent for the activity you want to start
+               Intent resultIntent = new Intent(MainActivity.this, ResultActivity.class);
+// Create the TaskStackBuilder and add the intent, which inflates the back stack
+               TaskStackBuilder stackBuilder = TaskStackBuilder.create(MainActivity.this);
+               stackBuilder.addNextIntentWithParentStack(resultIntent);
+// Get the PendingIntent containing the entire back stack
+               PendingIntent resultPendingIntent =
+                       stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+               NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID)
+               .setContentIntent(resultPendingIntent)
+                       .setAutoCancel(true)
+                       .setSmallIcon(R.drawable.notifications);
+
+               //NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.this);
+                createNotificationChannel();
+               notificationManager.notify(6, builder.build());
+           }
+       });
+
+
+       Special.setOnClickListener(new View.OnClickListener() {
+           //need to call from notification
+           @Override
+           public void onClick(View v) {
+               Intent notifyIntent = new Intent(MainActivity.this, ResultActivity.class);
+// Set the Activity to start in a new, empty task
+               notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                       | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+// Create the PendingIntent
+               PendingIntent notifyPendingIntent = PendingIntent.getActivity(
+                       MainActivity.this, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT
+               );
+
+               NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID)
+                       .setContentIntent(notifyPendingIntent)
+                       .setAutoCancel(true)
+                       .setSmallIcon(R.drawable.notifications);
+               createNotificationChannel();
+               notificationManager.notify(7, builder.build());
+           }
+       });
+
+
 
 
 

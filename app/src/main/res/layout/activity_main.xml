@@ -37,7 +37,21 @@
         android:layout_gravity="center"
         android:text="Expanded"/>
 
+    <Button
+        android:layout_margin="20dp"
+        android:id="@+id/regular_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Regular"/>
 
+    <Button
+        android:layout_margin="20dp"
+        android:id="@+id/special_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Special"/>
 
 
 </LinearLayout>
