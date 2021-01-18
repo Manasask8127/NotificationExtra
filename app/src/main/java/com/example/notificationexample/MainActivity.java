@@ -20,7 +20,7 @@ import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
-    Button Simple,Download_progress,FullScreen,Expanded,Regular,Special;
+    Button Simple,Download_progress,FullScreen,Expanded,Regular,Special,Group;
 
     public static final String CHANNEL_ID="Simple_Channel";
     NotificationManager notificationManager;
@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         Expanded=findViewById(R.id.Expanded);
         Regular=findViewById(R.id.regular_activity);
         Special=findViewById(R.id.special_activity);
+        Group=findViewById(R.id.group);
 
         Simple.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -221,6 +222,56 @@ public class MainActivity extends AppCompatActivity {
                        .setSmallIcon(R.drawable.notifications);
                createNotificationChannel();
                notificationManager.notify(7, builder.build());
+           }
+       });
+
+
+       Group.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               //use constant ID for notification used as group summary
+               int SUMMARY_ID = 0;
+               String GROUP_KEY_WORK_EMAIL = "com.android.example.WORK_EMAIL";
+
+               Notification newMessageNotification1 =
+                       new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID)
+                               .setSmallIcon(R.drawable.notifications)
+                               .setContentTitle("one mail")
+                               .setContentText("You will not believe...")
+                               .setGroup(GROUP_KEY_WORK_EMAIL)
+                               .build();
+
+               Notification newMessageNotification2 =
+                       new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID)
+                               .setSmallIcon(R.drawable.notifications)
+                               .setContentTitle("two mail")
+                               .setContentText("Please join us to celebrate the...")
+                               .setGroup(GROUP_KEY_WORK_EMAIL)
+                               .build();
+
+               Notification summaryNotification =
+                       new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID)
+                               .setContentTitle("email1")
+                               //set content text to support devices running API level < 24
+                               .setContentText("Two new messages")
+                               .setSmallIcon(R.drawable.notifications)
+                               //build summary info into InboxStyle template
+                               .setStyle(new NotificationCompat.InboxStyle()
+                                       .addLine("Alex Faarborg  Check this out")
+                                       .addLine("Jeff Chang    Launch Party")
+                                       .setBigContentTitle("2 new messages")
+                                       .setSummaryText("janedoe@example.com"))
+                               //specify which group this notification belongs to
+                               .setGroup(GROUP_KEY_WORK_EMAIL)
+                               //set this notification as the summary for the group
+                               .setGroupSummary(true)
+                               .build();
+
+               createNotificationChannel();
+               NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.this);
+               notificationManager.notify(9, newMessageNotification1);
+               notificationManager.notify(10, newMessageNotification2);
+               notificationManager.notify(SUMMARY_ID, summaryNotification);
            }
        });
 
