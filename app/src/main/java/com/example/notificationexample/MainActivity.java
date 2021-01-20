@@ -16,11 +16,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RemoteViews;
 
 public class MainActivity extends AppCompatActivity {
-    Button Simple,Download_progress,FullScreen,Expanded,Regular,Special,Group;
+    Button Simple,Download_progress,FullScreen,Expanded,Regular,Special,Group,custom;
 
     public static final String CHANNEL_ID="Simple_Channel";
     NotificationManager notificationManager;
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         Regular=findViewById(R.id.regular_activity);
         Special=findViewById(R.id.special_activity);
         Group=findViewById(R.id.group);
+        custom=findViewById(R.id.custom);
 
         Simple.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -275,6 +278,46 @@ public class MainActivity extends AppCompatActivity {
            }
        });
 
+       custom.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               RemoteViews expandedView = new RemoteViews(getPackageName(), R.layout.view_expanded_notification);
+               expandedView.setTextViewText(R.id.timestamp, DateUtils.formatDateTime(MainActivity.this, System.currentTimeMillis(), DateUtils.FORMAT_SHOW_TIME));
+               expandedView.setTextViewText(R.id.notification_message, "Hey it's custom");
+               // adding action to left button
+               Intent leftIntent = new Intent(MainActivity.this, NotificationIntentService.class);
+               leftIntent.setAction("left");
+               expandedView.setOnClickPendingIntent(R.id.left_button, PendingIntent.getService(MainActivity.this, 0, leftIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+               // adding action to right button
+               Intent rightIntent = new Intent(MainActivity.this, NotificationIntentService.class);
+               rightIntent.setAction("right");
+               expandedView.setOnClickPendingIntent(R.id.right_button, PendingIntent.getService(MainActivity.this, 1, rightIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+
+               RemoteViews collapsedView = new RemoteViews(getPackageName(), R.layout.view_collapsed_notification);
+               collapsedView.setTextViewText(R.id.timestamp, DateUtils.formatDateTime(MainActivity.this, System.currentTimeMillis(), DateUtils.FORMAT_SHOW_TIME));
+
+               NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this,CHANNEL_ID)
+                       // these are the three things a NotificationCompat.Builder object requires at a minimum
+                       .setSmallIcon(R.drawable.ic_pawprint)
+                       .setContentTitle("Custom")
+                       .setContentText("Custom bro......")
+                       // notification will be dismissed when tapped
+                       .setAutoCancel(true)
+                       // tapping notification will open MainActivity
+                       .setContentIntent(PendingIntent.getActivity(MainActivity.this, 0, new Intent(MainActivity.this, MainActivity.class), 0))
+                       // setting the custom collapsed and expanded views
+                       .setCustomContentView(collapsedView)
+                       .setCustomBigContentView(expandedView)
+                       // setting style to DecoratedCustomViewStyle() is necessary for custom views to display
+                       .setStyle(new NotificationCompat.DecoratedCustomViewStyle());
+
+               // retrieves android.app.NotificationManager
+               NotificationManager notificationManager = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+               createNotificationChannel();
+               notificationManager.notify(11, builder.build());
+           }
+       });
+
 
 
 
@@ -289,6 +332,7 @@ public class MainActivity extends AppCompatActivity {
             int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
+            channel.setShowBadge(true);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
             notificationManager = getSystemService(NotificationManager.class);

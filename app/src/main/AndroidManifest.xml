@@ -26,6 +26,14 @@
             android:taskAffinity=""
             android:excludeFromRecents="true">
         </activity>
+
+
+        <service
+            android:name=".NotificationIntentService">
+            <intent-filter android:priority="10000">
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
